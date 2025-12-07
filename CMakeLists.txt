@@ -13,6 +13,7 @@ add_library(samp-pathfinder SHARED
     src/natives.cpp
     src/worker.cpp
     src/pathfinder.cpp
+    src/loader.cpp
     lib/samp-sdk/amx/amxplugin.cpp
 )
 

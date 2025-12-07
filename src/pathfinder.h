@@ -1,11 +1,11 @@
 #pragma once
 #include <vector>
 #include <cmath>
-#include <limits>
+#include <map>
+#include <string>
 
 struct Vector3 {
     float x, y, z;
-
     float DistanceTo(const Vector3& other) const {
         return (float)std::sqrt(std::pow(other.x - x, 2) + 
                                 std::pow(other.y - y, 2) + 
@@ -26,7 +26,10 @@ struct PathResult {
 };
 
 extern std::vector<Node> g_Nodes;
+extern std::map<unsigned int, int> g_GtaToInternalID;
 
 void AddNode(int id, float x, float y, float z);
 void ConnectNodes(int id1, int id2);
 PathResult FindPath(int startID, int endID);
+bool LoadGTANodes(const std::string& filepath);
+bool GetNodePos(int id, float& x, float& y, float& z);

@@ -97,3 +97,15 @@ PathResult FindPath(int startID, int endID) {
 
     return result;
 }
+
+bool GetNodePos(int id, float& x, float& y, float& z) {
+    for (const auto& node : g_Nodes) {
+        if (node.id == id) {
+            x = node.position.x;
+            y = node.position.y;
+            z = node.position.z;
+            return true;
+        }
+    }
+    return false;
+}

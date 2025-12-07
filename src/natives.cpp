@@ -78,6 +78,35 @@ cell AMX_NATIVE_CALL PF_FreeResult(AMX* amx, cell* params) {
     return 1;
 }
 
+cell AMX_NATIVE_CALL PF_LoadGraph(AMX* amx, cell* params) {
+    std::string filename = GetPawnString(amx, params[1]);
+    bool success = LoadGTANodes(filename);
+    return success ? 1 : 0;
+}
+
+cell AMX_NATIVE_CALL PF_GetNodePos(AMX* amx, cell* params) {
+    int nodeID = params[1];
+    float x, y, z;
+
+    if (GetNodePos(nodeID, x, y, z)) {
+        
+        cell* addrX = NULL;
+        cell* addrY = NULL;
+        cell* addrZ = NULL;
+
+        amx_GetAddr(amx, params[2], &addrX);
+        amx_GetAddr(amx, params[3], &addrY);
+        amx_GetAddr(amx, params[4], &addrZ);
+
+        *addrX = amx_ftoc(x);
+        *addrY = amx_ftoc(y);
+        *addrZ = amx_ftoc(z);
+        
+        return 1;
+    }
+    return 0;
+}
+
 AMX_NATIVE_INFO PluginNatives[] = {
     {"PF_AddNode", PF_AddNode},
     {"PF_ConnectNodes", PF_ConnectNodes},
@@ -86,5 +115,7 @@ AMX_NATIVE_INFO PluginNatives[] = {
     {"PF_PathNext", PF_PathNext},
     {"PF_GetPathNode", PF_GetPathNode},
     {"PF_FreeResult", PF_FreeResult},
+    {"PF_LoadGraph", PF_LoadGraph},
+    {"PF_GetNodePos", PF_GetNodePos},
     {0, 0}
 };

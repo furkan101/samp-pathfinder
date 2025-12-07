@@ -2,61 +2,76 @@
 
 A high-performance, multi-threaded **A* (A-Star) Pathfinding** plugin for SA-MP servers, written in C++17.
 
+> **Current Status:** v0.2.0 (Alpha) - Functional Engine
+
 ## 🌟 Features
-* **Asynchronous:** Heavy calculations run on a background thread. Zero server lag.
-* **A* Algorithm:** Finds the shortest path between 3D coordinates efficiently.
-* **Dynamic Graph:** Create nodes and connections on the fly via Pawn.
-* **Thread-Safe:** robust task queue system prevents crashes.
+* **True Asynchronous:** Heavy pathfinding calculations run on a background thread.
+* **A* Algorithm:** Finds the shortest path between 3D nodes efficiently.
+* **Dynamic Graph:** Add nodes and connections via Pawn script.
+* **Thread-Safe:** Mutex-locked task queue system prevents server crashes.
+* **3D Support:** Fully compatible with SA-MP's (x, y, z) coordinate system.
 
 ## 🚀 Installation
-1. Download `samp-pathfinder.dll` (Windows) or `.so` (Linux).
+1. Download **`samp-pathfinder.dll`** from Releases.
 2. Place it in your `plugins/` folder.
-3. Add `plugins samp-pathfinder` to your `server.cfg`.
-4. Include `samp-pathfinder.inc` in your script.
+3. Copy `samp-pathfinder.inc` to `pawno/include/`.
+4. Add `plugins samp-pathfinder` to `server.cfg`.
+
+## 📖 API Reference
+
+### Graph Setup
+| Function | Description |
+|Cs|Cs|
+| `PF_AddNode(id, x, y, z)` | Adds a navigation node to the memory. |
+| `PF_ConnectNodes(id1, id2)` | Creates a two-way connection between nodes. |
+
+### Pathfinding
+| Function | Description |
+|Cs|Cs|
+| `PF_FindPath(start, end, cb[], playerid)` | Requests a path calculation (Async). |
+| `PF_GetNodePos(id, &x, &y, &z)` | Gets the 3D coordinates of a specific node. |
+
+### Result Handling
+| Function | Description |
+|Cs|Cs|
+| `PF_PathFound(resultid)` | Returns 1 if a path was found. |
+| `PF_PathNext(resultid)` | Iterates to the next node in the path. |
+| `PF_GetPathNode(resultid)` | Returns the Node ID at the current step. |
+| `PF_FreeResult(resultid)` | Frees the memory (Must be called!). |
 
 ## ⚡ Usage Example
 
-### 1. Setup the Map (Graph)
-Before finding paths, you must define the world nodes.
 ```C++
-// Add Nodes (ID, x, y, z)
-PF_AddNode(1, 0.0, 0.0, 0.0);
-PF_AddNode(2, 10.0, 0.0, 0.0);
-PF_AddNode(3, 20.0, 0.0, 0.0);
+#include <a_samp>
+#include <samp-pathfinder>
 
-// Connect Nodes (Create roads)
-PF_ConnectNodes(1, 2);
-PF_ConnectNodes(2, 3);
-```
-### 2. Request a Path
-Ask the plugin to calculate a route. This does NOT freeze the server.
+main() {
+    // 1. Setup Map (Simple Triangle)
+    PF_AddNode(1, 0.0, 0.0, 5.0);
+    PF_AddNode(2, 20.0, 0.0, 5.0);
+    PF_AddNode(3, 20.0, 20.0, 5.0);
 
-```C++
-// Find path from Node 1 to Node 3
-PF_FindPath(1, 3, "OnPathCalculated");
+    PF_ConnectNodes(1, 2);
+    PF_ConnectNodes(2, 3);
+    
+    // 2. Request Path
+    PF_FindPath(1, 3, "OnPathCalculated");
+}
 
 forward OnPathCalculated(resultid, playerid);
 public OnPathCalculated(resultid, playerid)
 {
     if(PF_PathFound(resultid))
     {
-        printf("Path Found!");
         while(PF_PathNext(resultid))
         {
             new nodeID = PF_GetPathNode(resultid);
-            printf("Go to Node: %d", nodeID);
+            new Float:x, Float:y, Float:z;
+            
+            PF_GetNodePos(nodeID, x, y, z);
+            printf("Go to Node %d at %.2f, %.2f, %.2f", nodeID, x, y, z);
         }
     }
-    PF_FreeResult(resultid); // Always free memory!
+    PF_FreeResult(resultid);
     return 1;
-}
-```
-### 🛠️ Build
-- Visual Studio 2022
-- CMake 3.15+
-
-> cmake -S . -B build -G "Visual Studio 17 2022" -A Win32
-> cmake --build build --config Release
-
-### License
-MIT License
+}```
